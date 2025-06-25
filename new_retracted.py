@@ -1,3 +1,5 @@
+# Using pubmed.db, create two dictionaries to map NCT --> published papers and the reverse
+
 from sqlite_utils import Database
 
 pubmedDbFile = "/ssd/sqlite/PubMed.db"

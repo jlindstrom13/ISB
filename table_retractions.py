@@ -1,6 +1,7 @@
 # Creating table to label retractions (NCT | PMID | 0/1)
 
 from sqlite_utils import Database
+import pandas as pd
 
 pubmedDbFile = "/ssd/sqlite/PubMed.db"
 pubmed = Database(pubmedDbFile)
@@ -14,3 +15,13 @@ for pmid, acc in pubmed.execute("SELECT pmid, acc FROM acc;"):
 	papers[acc].append(pmid) #adds pmid 
 	if pmid not in trials: trials[pmid] = []  #Note: can't be { } can't have dict of dict
 	trials[pmid].append(acc)
+
+# here we have two dictionaries... now need to create table 
+
+rows = []
+for NCT, pmid in papers.items():
+	for each_pmid in pmid:
+	    rows.append({"NCT": NCT, "PMID": each_pmid})
+		
+table = pd.DataFrame(rows)
+print(table.head())

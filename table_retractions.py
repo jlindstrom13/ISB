@@ -17,7 +17,6 @@ for pmid, acc in pubmed.execute("SELECT pmid, acc FROM acc;"):
 	trials[pmid].append(acc)
 
 # here we have two dictionaries... now need to create table 
-
 rows = []
 for NCT, pmid in papers.items():
 	for each_pmid in pmid:
@@ -25,3 +24,24 @@ for NCT, pmid in papers.items():
 		
 table = pd.DataFrame(rows)
 print(table.head())
+print(len(table))
+
+# Add a column of 0 and 1s for retracted papers
+# 1 = retracted pmid, 0 = not retracted pmid
+
+# first function to get pmid by mesh DO.... value
+def get_pmid_by_type(type_mesh_DO):
+	return list(
+		row[0] for row in pubmed.execute(
+			"SELECT pmid FROM type WHERE type = ?;", [type_mesh_DO]))
+
+# test= get_pmid_by_type("D016441") # Retractions: DO16441
+# print(f"trying to use function {test[5]}")
+
+retracted_pmids = set(get_pmid_by_type("D016441")) # retracted & change to set (no repeats)
+
+table["retracted"] = table["PMID"].isin(retracted_pmids).astype(int)
+
+print(table.head())
+
+

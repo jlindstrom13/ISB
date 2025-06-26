@@ -6,6 +6,13 @@ import pandas as pd
 pubmedDbFile = "/ssd/sqlite/PubMed.db"
 pubmed = Database(pubmedDbFile)
 
+# first function to get pmid by mesh DO.... value
+def get_pmid_by_type(type_mesh_DO):
+	return list(
+		row[0] for row in pubmed.execute(
+			"SELECT pmid FROM type WHERE type = ?;", [type_mesh_DO]))
+
+
 papers = {} # Dictionary that maps NCT : list of PMIDs (could be multiple)
 trials = {} # Dictionary that maps PMID: list of NCT 
 
@@ -23,17 +30,10 @@ for NCT, pmid in papers.items():
 	    rows.append({"NCT": NCT, "PMID": each_pmid})
 		
 table = pd.DataFrame(rows)
-print(table.head())
-print(len(table))
+
 
 # Add a column of 0 and 1s for retracted papers
 # 1 = retracted pmid, 0 = not retracted pmid
-
-# first function to get pmid by mesh DO.... value
-def get_pmid_by_type(type_mesh_DO):
-	return list(
-		row[0] for row in pubmed.execute(
-			"SELECT pmid FROM type WHERE type = ?;", [type_mesh_DO]))
 
 # test= get_pmid_by_type("D016441") # Retractions: DO16441
 # print(f"trying to use function {test[5]}")
@@ -44,4 +44,12 @@ table["retracted"] = table["PMID"].isin(retracted_pmids).astype(int)
 
 print(table.head())
 
+print(len(table))
 
+
+# ct_pmid = set(get_pmid_by_type("D016430")) # ct mesh
+
+# table["MeSH_ct"] = table["PMID"].isin(ct_pmid).astype(int)
+
+# print(table[table["MeSH_ct"] == 0].head()) 
+# conclusion: there are some trials not labeled CT MeSH but do have an NCT number associated w trial

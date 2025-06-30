@@ -17,10 +17,18 @@ def readTable(aact, tablename, usefields):
 			table = pd.read_csv(f, sep='|', usecols=usefields)
 	return table
 
+# calls the function readTable
+# input aact always
+# table name: 'study_references' column names: ['nct_id', etc.]
 refs = readTable(aact, 'study_references', ['nct_id','pmid','reference_type'])
 for index, row in refs.iterrows():
 	nctid = row['nct_id']
 
-#testing
-print("Loaded study_references with", len(refs), "rows")
-print(refs.head())
+
+retractions = readTable(aact, 'retractions', ['nct_id','pmid'])
+for index, row in retractions.iterrows():
+	nctid = row['nct_id']
+
+
+print("retractions has", len(retractions), "rows")
+print(retractions.head())

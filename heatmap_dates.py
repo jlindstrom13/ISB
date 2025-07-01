@@ -3,6 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import mpl_scatter_density # adds projection='scatter_density'
 from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.ticker import FuncFormatter
+import datetime
 
 aact = '20250626'
 
@@ -20,6 +22,26 @@ def readTable(aact, tablename, usefields):
 			table = pd.read_csv(f, sep='|', usecols=usefields)
 	return table
 
+def using_mpl_scatter_density(fig, x, y):
+	ax = fig.add_subplot(1, 1, 1, projection='scatter_density')
+	density = ax.scatter_density(x, y, cmap=white_viridis)
+	fig.colorbar(density, label='Number of points per pixel')
+	ax.set_xlabel("Start Date")
+	ax.set_ylabel("Study First Posted Date")
+	ax.set_title("Density of Start vs. Posted Dates")
+	ax.xaxis.set_major_formatter(FuncFormatter(format_date))
+	ax.yaxis.set_major_formatter(FuncFormatter(format_date))
+	start_ordinal = datetime.date(2000, 1, 1).toordinal()
+	end_ordinal = datetime.date(2030, 1, 1).toordinal()
+	ax.set_xlim(start_ordinal, end_ordinal)
+	ax.set_ylim(start_ordinal, end_ordinal)
+
+
+def format_date(x, _):
+    try:
+        return datetime.date.fromordinal(int(x)).strftime('%Y')
+    except:
+        return ''
 
 df = readTable(aact, 'studies', ['nct_id','study_first_posted_date', 'start_date'])
 for index, row in df.iterrows():
@@ -33,22 +55,20 @@ heatdf = df.dropna(subset=['start_date', 'study_first_posted_date'])
 
 white_viridis = LinearSegmentedColormap.from_list('white_viridis', [
     (0, '#ffffff'),
-    (1e-20, '#440053'),
-    (0.2, '#404388'),
-    (0.4, '#2a788e'),
-    (0.6, '#21a784'),
-    (0.8, '#78d151'),
+    (0.05, '#440053'),
+    (0.15, '#404388'),
+    (0.3, '#2a788e'),
+    (0.5, '#21a784'),
+    (0.7, '#78d151'),
     (1, '#fde624'),
 ], N=256)
 
-def using_mpl_scatter_density(fig, x, y):
-    ax = fig.add_subplot(1, 1, 1, projection='scatter_density')
-    density = ax.scatter_density(x, y, cmap=white_viridis)
-    fig.colorbar(density, label='Number of points per pixel')
-	ax.set_xlabel("Start Date")
-    ax.set_ylabel("Study First Posted Date")
-    ax.set_title("Density of Start vs. Posted Dates")
+x = heatdf['start_date'].map(pd.Timestamp.toordinal)
+y = heatdf['study_first_posted_date'].map(pd.Timestamp.toordinal)
 
 fig = plt.figure()
 using_mpl_scatter_density(fig, x, y)
 plt.savefig("density_start_vs_posted.png", dpi=600)
+
+
+

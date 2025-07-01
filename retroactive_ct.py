@@ -77,3 +77,13 @@ plt.xlim(pd.to_datetime('1980-01-01'), pd.to_datetime('2035-01-01'))
 plt.ylim(pd.to_datetime('1980-01-01'), pd.to_datetime('2035-01-01'))
 
 plt.savefig("zoomed_dates.png", dpi=600)
+
+
+new_df['diff_days'] = (new_df['start_date'] - new_df['study_first_posted_date']).dt.days
+
+
+plt.hist(new_df['diff_days'], bins=100)
+plt.xlabel('Start Date - Posted Date (days)')
+plt.ylabel('Number of Trials')
+plt.title('Start vs Posted Date Difference')
+plt.savefig("diff_start_posted")

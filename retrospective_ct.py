@@ -52,11 +52,12 @@ new_df = df.dropna(subset=['start_date', 'study_first_posted_date'])
 new_df.plot.scatter(
 	x='start_date', 
 	y='study_first_posted_date',
-	alpha=0.3, 
+	alpha=0.02, 
+	s=8,
 	title='Start vs. Posted Date')
 plt.plot(new_df['start_date'], new_df['start_date'], 'r--', label='start = posted')
 
-plt.savefig("dates_plot.png")
+plt.savefig("dates_plot.png", dpi=600)
 
 latest_start = new_df['start_date'].max()
 print("Latest start date:", latest_start)

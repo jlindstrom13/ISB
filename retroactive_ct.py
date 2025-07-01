@@ -1,12 +1,9 @@
-#  Creating table to label retrospective studies (NCT | 0/1)
-
-# Studies.txt → study_first_posted_date and 
-# start_date where start_date_type = ACTUAL (instead of estimated)
+#  Created table to label retrospective studies (NCT | 0/1)
+# Plotted start vs posted date, and difference between
 
 import zipfile
 import pandas as pd
 import matplotlib.pyplot as plt
-
 
 aact = '20250626'
 
@@ -49,6 +46,7 @@ df['study_first_posted_date'] = pd.to_datetime(df['study_first_posted_date'], er
 # Drop rows w/ na
 new_df = df.dropna(subset=['start_date', 'study_first_posted_date'])
 
+plt.figure()
 new_df.plot.scatter(
 	x='start_date', 
 	y='study_first_posted_date',
@@ -77,13 +75,23 @@ plt.xlim(pd.to_datetime('1980-01-01'), pd.to_datetime('2035-01-01'))
 plt.ylim(pd.to_datetime('1980-01-01'), pd.to_datetime('2035-01-01'))
 
 plt.savefig("zoomed_dates.png", dpi=600)
-
+plt.close()
 
 new_df['diff_days'] = (new_df['start_date'] - new_df['study_first_posted_date']).dt.days
 
-
+plt.figure()
 plt.hist(new_df['diff_days'], bins=100)
 plt.xlabel('Start Date - Posted Date (days)')
 plt.ylabel('Number of Trials')
 plt.title('Start vs Posted Date Difference')
 plt.savefig("diff_start_posted")
+plt.close()
+
+short_df = new_df[(new_df['diff_days'] > -5000) & (new_df['diff_days'] < 5000)]
+plt.figure()
+plt.hist(short_df['diff_days'], bins=100)
+plt.xlabel('Start Date - Posted Date (days)')
+plt.ylabel('Number of Trials')
+plt.title('Start vs Posted Date Difference No Outliers')
+plt.savefig("diff_start_post_no_outlier")
+plt.close()

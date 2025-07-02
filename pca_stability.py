@@ -21,7 +21,12 @@ stability_clean =stability_clean.select_dtypes(include=[np.number])
 imputer = SimpleImputer(strategy='mean')
 stability_imputed = imputer.fit_transform(stability_clean)
 
+# try it not normalized
+pca=PCA(n_components=2)
+pca.fit(stability_imputed)
 
+print("Explained variance ratio:", pca.explained_variance_ratio_)
+print("Cumulative variance:", np.cumsum(pca.explained_variance_ratio_))
 #standardization:  center so mean of each column = 0, normalize by dividing each    
 # variable by lenght of vector ( values from 0-1)
 
@@ -34,9 +39,15 @@ pca.fit(stability_standardized)
 print("(Standardized) Explained variance ratio:", pca.explained_variance_ratio_)
 print("(Standardized) Cumulative variance:", np.cumsum(pca.explained_variance_ratio_))
 
-# try it not normalized
-pca=PCA(n_components=2)
-pca.fit(stability_imputed)
+plt.bar(range(1, len(pca.explained_variance_ratio_) + 1), pca.explained_variance_ratio_)
+plt.xlabel('Component Number')
+plt.ylabel('Explained Variance')
+plt.title('Scree Plot')
+plt.xticks(range(1, 3))
+plt.grid(True, axis='y')
+plt.savefig("scree_plot")
 
-print("Explained variance ratio:", pca.explained_variance_ratio_)
-print("Cumulative variance:", np.cumsum(pca.explained_variance_ratio_))
+loadings = pd.DataFrame(pca.components_.T,
+                        columns=['PC1', 'PC2'],
+                        index=stability_clean.columns)
+print(loadings.sort_values('PC1', ascending=False).head(10))

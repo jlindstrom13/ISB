@@ -57,7 +57,7 @@ plt.savefig("scree_plot")
 loadings = pd.DataFrame(pca.components_.T,
                         columns=['PC1', 'PC2'],
                         index=stability_df_no_nct.columns)
-print(loadings.sort_values('PC1', ascending=False).head(10))
+print(loadings.sort_values('PC2', ascending=False).head(10))
 
 plt.figure(figsize=(8, 5))
 plt.hist(na_percent, bins=30, color='steelblue', edgecolor='black')
@@ -80,9 +80,10 @@ plt.tight_layout()
 plt.savefig("pc1_pc2.png")
 
 
-
-outlier_idx = np.argmin(pca_result[:, 0])
-print("Outlier trial index:", outlier_idx)
+outlier_idx = np.argmin(pca_result[:, 1])
+print("Outlier trial index/row:", outlier_idx)
 
 nct_id = stability_df.iloc[outlier_idx]['nctid']
 print("Outlier NCT:", nct_id)
+
+

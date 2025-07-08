@@ -5,9 +5,18 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import umap
-from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA
+import mpl_scatter_density # adds projection='scatter_density'
+from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.ticker import FuncFormatter
+
+def using_mpl_scatter_density(fig, x, y, xlabel="UMAP 1", ylabel="UMAP 2"):
+    ax = fig.add_subplot(1, 1, 1, projection='scatter_density')
+    density = ax.scatter_density(x, y, cmap=white_viridis)
+    fig.colorbar(density, label='Number of points per pixel')
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_title(title)
+
 
 
 embedding = np.load("umap_embedding.npy")
@@ -16,8 +25,28 @@ plt.figure()
 plt.scatter(
     embedding[:, 0],
     embedding[:, 1],
-    alpha = 0.1,
-    s = 2)
+    alpha = 0.05,
+    s = 1)
 plt.gca().set_aspect('equal', 'datalim')
 plt.title('UMAP projection of the Stability dataset', fontsize=15);
 plt.savefig("umap_projection_full_2")
+
+white_viridis = LinearSegmentedColormap.from_list('white_viridis', [
+    (0, '#ffffff'),
+    (0.05, '#440053'),
+    (0.15, '#404388'),
+    (0.3, '#2a788e'),
+    (0.5, '#21a784'),
+    (0.7, '#78d151'),
+    (1, '#fde624'),
+], N=256)
+
+
+x = embedding[:, 0]
+y = embedding[:, 1]
+
+fig = plt.figure()
+using_mpl_scatter_density(fig, x, y, title="UMAP Clinical Trial Density")
+plt.savefig("umap_density_plot.png", dpi=600)
+
+

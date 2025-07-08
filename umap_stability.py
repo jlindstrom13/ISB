@@ -21,4 +21,31 @@ stability_df_filtered = stability_df.loc[:, na_percent <= q3]
 # don't include NCTID dtype='object'
 stability_df_no_nct = stability_df_filtered.select_dtypes(include=[np.number])
 
+# Apply mean imputation to fill missing values with MEAN
+imputer = SimpleImputer(strategy='mean')
+stability_imputed = imputer.fit_transform(stability_df_no_nct)
 
+# construct a umap object
+reducer = umap.UMAP()
+
+#standardization:  center so mean of each column = 0, normalize by dividing each    
+# variable by lenght of vector ( values from 0-1)
+
+scaler = StandardScaler()
+stability_standardized = scaler.fit_transform(stability_imputed)
+
+# take a subset of first 10,000 to make it faster
+stability_subset = stability_standardized[:20000]
+
+
+embedding = reducer.fit_transform(stability_subset)
+#shape_output = embedding.shape
+#print(shape_output)
+
+plt.figure()
+plt.scatter(
+    embedding[:, 0],
+    embedding[:, 1])
+plt.gca().set_aspect('equal', 'datalim')
+plt.title('UMAP projection of the Stability dataset', fontsize=24);
+plt.savefig("umap_projection_subset")

@@ -32,7 +32,7 @@ def plot_hist(data, column, filename, bins=100, xlabel='', ylabel='', title='', 
 	plt.savefig(filename)
 	plt.close()
 
-df = readTable(aact, 'studies', ['nct_id','study_first_posted_date', 'study_first_posted_date_type', 'start_date', 'start_date_type'])
+df = readTable(aact, 'studies', ['nct_id','study_first_posted_date', 'study_first_posted_date_type', 'start_date', 'start_date_type', 'phase'])
 for index, row in df.iterrows():
 	nctid = row['nct_id']
 
@@ -40,18 +40,19 @@ df['start_date'] = pd.to_datetime(df['start_date'], errors='coerce')
 df['study_first_posted_date'] = pd.to_datetime(df['study_first_posted_date'], errors='coerce')
 
 # Drop rows w/ na
-new_df = df.dropna(subset=['start_date', 'study_first_posted_date'])
+new_df = df.dropna(subset=['start_date', 'study_first_posted_date', 'phase'])
+new_df.loc[:,'diff_days'] = (new_df['study_first_posted_date'] - new_df['start_date']).dt.days
 
-plt.figure()
-new_df.plot.scatter(
-	x='start_date', 
-	y='study_first_posted_date',
-	alpha=0.02, 
-	s=8,
-	title='Start vs. Posted Date')
-plt.plot(new_df['start_date'], new_df['start_date'], 'r--', label='start = posted')
+phase1_df = new_df[new_df['phase'] == 'PHASE1']
 
-plt.savefig("dates_plot.png", dpi=600)
+plot_hist(
+    phase1_df,
+    column='diff_days',
+    filename='phase1_diff.png',
+    xlabel='Posted Date - Start Date (days)',
+    ylabel='Number of Trials',
+    title='Phase 1 Posted and Start Date Difference'
+)
 
-latest_start = new_df['start_date'].max()
-print("Latest start date:", latest_start)
+
+# future work.... continue for other phases and get rid of extreme outliers and put in log

@@ -2,6 +2,7 @@
 
 import zipfile
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats.mstats import winsorize
 
@@ -35,6 +36,8 @@ def plot_hist(data, column, filename, bins=100, xlabel='', ylabel='', title='', 
 df = readTable(aact, 'studies', ['nct_id','study_first_posted_date', 'study_first_posted_date_type', 'start_date', 'start_date_type', 'phase'])
 for index, row in df.iterrows():
 	nctid = row['nct_id']
+
+df.to_pickle("aact_20250626.pkl") # saving for future use
 
 df['start_date'] = pd.to_datetime(df['start_date'], errors='coerce')
 df['study_first_posted_date'] = pd.to_datetime(df['study_first_posted_date'], errors='coerce')

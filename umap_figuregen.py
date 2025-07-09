@@ -54,6 +54,8 @@ umap_df["nct_id"] = nct_ids # combining umap1,2 and nctids
 
 aact_df = pd.read_pickle("aact_20250626.pkl")
 
+print(aact_df.head(20))
+
 phase1_df = aact_df[aact_df['phase'] == 'PHASE1']
 umap_df["is_phase1"] = umap_df["nct_id"].isin(phase1_df["nct_id"])
 phase1_points = umap_df[umap_df["is_phase1"]]
@@ -65,6 +67,18 @@ phase2_points = umap_df[umap_df["is_phase2"]]
 phase3_df = aact_df[aact_df['phase'] == 'PHASE3']
 umap_df["is_phase3"] = umap_df["nct_id"].isin(phase3_df["nct_id"])
 phase3_points = umap_df[umap_df["is_phase3"]]
+
+phase4_df = aact_df[aact_df['phase'] == 'PHASE4']
+umap_df["is_phase4"] = umap_df["nct_id"].isin(phase4_df["nct_id"])
+phase4_points = umap_df[umap_df["is_phase4"]]
+
+phase12_df = aact_df[aact_df['phase'] == 'PHASE1/PHASE2']
+umap_df["is_phase12"] = umap_df["nct_id"].isin(phase12_df["nct_id"])
+phase12_points = umap_df[umap_df["is_phase12"]]
+
+phase23_df = aact_df[aact_df['phase'] == 'PHASE2/PHASE3']
+umap_df["is_phase23"] = umap_df["nct_id"].isin(phase23_df["nct_id"])
+phase23_points = umap_df[umap_df["is_phase23"]]
 
 
 #Scatter plot of all trials as gray, and then phase one as purple
@@ -125,3 +139,58 @@ plt.scatter(
 plt.gca().set_aspect('equal', 'datalim')
 plt.title('UMAP projection of the Stability dataset, Phase 3 Highlighted', fontsize=12);
 plt.savefig("umap_phase3")
+
+plt.figure()
+plt.scatter(
+    embedding[:, 0],
+    embedding[:, 1],
+    c = "lightgray",
+    alpha = 0.05,
+    s = 1)
+plt.scatter(
+    phase4_points["UMAP1"],
+    phase4_points["UMAP2"],
+    c="magenta",
+    s=1,
+    alpha=0.05,
+    )
+plt.gca().set_aspect('equal', 'datalim')
+plt.title('UMAP projection of the Stability dataset, Phase 4 Highlighted', fontsize=12);
+plt.savefig("umap_phase4")
+
+
+plt.figure()
+plt.scatter(
+    embedding[:, 0],
+    embedding[:, 1],
+    c = "lightgray",
+    alpha = 0.05,
+    s = 1)
+plt.scatter(
+    phase12_points["UMAP1"],
+    phase12_points["UMAP2"],
+    c="olive",
+    s=1,
+    alpha=0.05,
+    )
+plt.gca().set_aspect('equal', 'datalim')
+plt.title('UMAP projection of the Stability dataset, Phase 1/2 Highlighted', fontsize=12);
+plt.savefig("umap_phase12")
+
+plt.figure()
+plt.scatter(
+    embedding[:, 0],
+    embedding[:, 1],
+    c = "lightgray",
+    alpha = 0.05,
+    s = 1)
+plt.scatter(
+    phase23_points["UMAP1"],
+    phase23_points["UMAP2"],
+    c="#d62728",
+    s=1,
+    alpha=0.05,
+    )
+plt.gca().set_aspect('equal', 'datalim')
+plt.title('UMAP projection of the Stability dataset, Phase 2/3 Highlighted', fontsize=12);
+plt.savefig("umap_phase23")

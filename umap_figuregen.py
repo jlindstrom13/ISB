@@ -80,7 +80,9 @@ phase23_df = aact_df[aact_df['phase'] == 'PHASE2/PHASE3']
 umap_df["is_phase23"] = umap_df["nct_id"].isin(phase23_df["nct_id"])
 phase23_points = umap_df[umap_df["is_phase23"]]
 
-
+phasena = aact_df[aact_df['phase'].isna()]
+umap_df["is_na"] = umap_df["nct_id"].isin(phasena["nct_id"])
+phasena_points = umap_df[umap_df["is_na"]]
 #Scatter plot of all trials as gray, and then phase one as purple
 
 plt.figure()
@@ -194,3 +196,22 @@ plt.scatter(
 plt.gca().set_aspect('equal', 'datalim')
 plt.title('UMAP projection of the Stability dataset, Phase 2/3 Highlighted', fontsize=12);
 plt.savefig("umap_phase23")
+
+
+plt.figure()
+plt.scatter(
+    embedding[:, 0],
+    embedding[:, 1],
+    c = "lightgray",
+    alpha = 0.05,
+    s = 1)
+plt.scatter(
+    phasena_points["UMAP1"],
+    phasena_points["UMAP2"],
+    c="#330c0c",
+    s=1,
+    alpha=0.05,
+    )
+plt.gca().set_aspect('equal', 'datalim')
+plt.title('UMAP projection of the Stability dataset, NA Highlighted', fontsize=12);
+plt.savefig("umap_phasena")

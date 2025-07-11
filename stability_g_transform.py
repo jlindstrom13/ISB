@@ -38,13 +38,14 @@ def median_rescale_to_half(col):
 
 stability_transformed = stability_df_no_nct.apply(median_rescale_to_half)
 
-column_to_plot = stability_df_no_nct.columns[:9] 
 
-for col in column_to_plot:
+
+for col in stability_transformed.columns:
     plt.figure(figsize=(6,4))
     sns.histplot(stability_transformed[col], bins=100, kde=False, color='green')
     plt.yscale("log")
     plt.title(f'Transformed Histogram: {col}')
     plt.xlabel('Value')
     plt.ylabel('Count')
-    plt.savefig("transformed_stability.png")
+    plt.savefig(f"transformed_stability_{col}.png")
+    plt.close()

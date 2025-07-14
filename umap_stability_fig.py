@@ -63,8 +63,6 @@ print(umap_df.head())
 # using_mpl_scatter(fig, umap_df['UMAP1'], umap_df['UMAP2'], umap_df['studies:study_type'])
 # plt.savefig("umap_stability_studytype.png")
  
-
-
 plt.figure(figsize=(8, 6))
 plt.scatter(
     umap_df['UMAP1'],

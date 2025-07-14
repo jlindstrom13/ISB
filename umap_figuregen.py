@@ -1,4 +1,4 @@
-# Using umap_stability.py output file (umap_embedding.npy) create a graph
+# Using umap_stability.py output file (umap_embedding.npy) create graphs
 
 import zipfile
 import pandas as pd

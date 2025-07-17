@@ -42,10 +42,11 @@ counts = num_outlier_features.value_counts().sort_index()
 
 cutoff = 24
 plt.figure(figsize=(10,6))
-plt.plot(counts.index, np.log1p(counts.values), marker='o')  # log1p adds one to help w 0 count
+plt.plot(counts.index, counts.values, marker='o')  # log1p adds one to help w 0 count
 plt.axvline(x=cutoff, color = 'red') 
 plt.xlabel("Number of Outlier Features per Trial")
-plt.ylabel("Log(Number of Trials+1)")
+plt.ylabel("Number of Trials, log scale")
+plt.yscale('log') 
 plt.title("Dist. of Outlier Features per Trial")
 plt.grid(True)
 plt.tight_layout()
@@ -57,23 +58,3 @@ trials_above_cutoff = outlier_binary_matrix.loc[num_outlier_features > cutoff, '
 print(f"Trials with more than {cutoff} outlier features:")
 print(trials_above_cutoff)
 
-
-# # need to filter out features that have nothing below 0.5 or have too much...
- 
-# filtered_features = []
-
-# for col in stability_transformed.columns:
-#     values = stability_transformed[col]
-#     prop_below_05 = (values < 0.5).mean()
-    
-#     if prop_below_05 > 0.4 or prop_below_05 == 0: # code this out if u want all
-#             continue # skips these... # code this out if u want all
-        
-# filtered_df = stability_transformed[filtered_features]
-
-# # filtered and Sum up amount of trials less than 0.5 for each feature
-# stability_lessthan_05_f = filtered_df <0.5
-# count_lessthan_05 = stability_lessthan_05_f.sum(axis=0)
-# print(count_lessthan_05.shape)
-
-# count_lessthan_05.to_csv('count_lessthan05_filtered', sep="\t")

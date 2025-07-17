@@ -22,6 +22,7 @@ for pmid, acc in pubmed.execute("SELECT pmid, acc FROM acc;"):
 		trials[pmid] = []  
 	trials[pmid].append(acc)
 
+print(f"Number of retracted pubmed: {len(retracted)}")
 print(f"Number of clinical trials that have 1+ retracted papers associated with it: {len(papers)}")
 print(f"Number of retracted papers that have 1+ trials associated with it: {len(trials)}")
 print(f"Entry 5 in papers: {list(papers.items())[4]}")

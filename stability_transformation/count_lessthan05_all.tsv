@@ -12,6 +12,7 @@ calculated_values:number_of_other_outcomes_to_measure	84
 calculated_values:number_of_primary_outcomes_to_measure	1595
 calculated_values:number_of_secondary_outcomes_to_measure	603
 calculated_values:registered_in_calendar_year	537
+calculated_values:were_results_reported	14180
 designs:allocation	72
 designs:caregiver_masked	92
 designs:intervention_model	115
@@ -81,6 +82,9 @@ studies:created_at	817
 studies:disposition_first_posted_date	1
 studies:first_received_results_date	4
 studies:last_changed_date	3954
+studies:last_update_posted_date_type	13337
+studies:last_update_submitted_date	21452
+studies:last_update_submitted_qc_date	21452
 studies:nlm_download_date_description	7
 studies:primary_completion_date	560
 studies:primary_completion_date_type	31
@@ -92,6 +96,7 @@ studies:results_first_submitted_qc_date	2
 studies:start_date	2137
 studies:start_date_type	147
 studies:start_month_year	2047
+studies:study_first_posted_date	12461
 studies:study_first_posted_date_type	5961
 studies:study_first_submitted_date	4624
 studies:study_first_submitted_qc_date	4630

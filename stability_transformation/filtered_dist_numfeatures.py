@@ -23,7 +23,7 @@ for col in stability_transformed.columns:
     values = stability_transformed[col]
     prop_below_05 = (values < 0.5).mean()  # fraction of trials where feature is unstable
 
-    if prop_below_05 > 0.02 or prop_below_05 == 0:
+    if prop_below_05 > 0.05 or prop_below_05 == 0:
         continue  # skip  feature
 
     filtered_features.append(col) 
@@ -52,19 +52,23 @@ num_outlier_features = outlier_binary_matrix.drop(columns=['nctid']).sum(axis=1)
 
 counts = num_outlier_features.value_counts().sort_index()
 
-cutoff = 24
+cutoff = 13
 plt.figure(figsize=(10,6))
-plt.plot(counts.index, np.log1p(counts.values), marker='o')  # log1p adds one to help w 0 count
+plt.plot(counts.index, counts.values, marker='o')  # log1p adds one to help w 0 count
 plt.axvline(x=cutoff, color = 'red') 
 plt.xlabel("Number of Outlier Features per Trial")
-plt.ylabel("Log(Number of Trials+1)")
+plt.ylabel("Number of Trials, log scale")
+plt.yscale('log') 
 plt.title("Dist. of Outlier Features per Trial (Filtered Features)")
 plt.grid(True)
 plt.tight_layout()
 plt.savefig("filtered_dist_outlierfeatures.png")
 
-
-cutoff = 24
+cutoff = 13
 trials_above_cutoff = outlier_binary_matrix.loc[num_outlier_features > cutoff, 'nctid']
 print(f"Trials with more than {cutoff} outlier features (filtered):")
+print(f"Number of trials above cutoff: {len(trials_above_cutoff)}")
 print(trials_above_cutoff)
+
+trials_above_cutoff.to_pickle("trials_above_cutoff13.pkl")
+

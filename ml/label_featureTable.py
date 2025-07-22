@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, accuracy_score
 from sklearn.metrics import confusion_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -13,14 +13,17 @@ df = pd.read_pickle("featureTable.pkl")
 # TO ADD:
  # retractions/retracted_ncts.pkl   discrepancies/discrepant_unique_nctids.pkl
  # stability_transformation/trials_above_cutoff4.pkl
+ # retractions/r_watch_ncts.pkl (143)
 
 discrepant_nctids = pd.read_pickle("/users/jlindstr/code/discrepancies/discrepant_unique_nctids.pkl")
 retracted_nctids = pd.read_pickle("/users/jlindstr/code/retractions/retracted_ncts.pkl")
 stability_nctids = pd.read_pickle("/users/jlindstr/code/stability_transformation/trials_above_cutoff4.pkl")
+rwatch_nctids = pd.read_pickle("/users/jlindstr/code/retractions/r_watch_ncts.pkl")
+
 
 all_ncts_1 = set(discrepant_nctids) | set(retracted_nctids) | set(stability_nctids)
 
-print(f" length of untrustwrothy trials: {len(all_ncts_1)}") #11,848 currently....
+print(f" length of untrustworthy trials: {len(all_ncts_1)}") #11,848 currently....
 
 df['label'] = np.nan  # set ALL to NA
 
@@ -71,3 +74,15 @@ plt.xlabel('Predicted Label')
 plt.ylabel('True Label')
 plt.title('Contingency Table')
 plt.savefig("contingency_table.png")
+
+
+#Training accuracy
+y_train_pred = clf.predict(X_train)
+train_accuracy = accuracy_score(y_train, y_train_pred)
+print(f"Training Accuracy: {train_accuracy:.4f}")
+
+
+#Test accuracy
+
+test_accuracy = accuracy_score(y_test, y_pred)
+print(f"Test Accuracy: {test_accuracy:.4f}")

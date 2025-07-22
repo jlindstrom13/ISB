@@ -82,3 +82,23 @@ print(pmid_nct_table["retracted"].value_counts())
 retracted_ncts = pmid_nct_table[pmid_nct_table["retracted"] == 1]["NCT"].unique()
 
 pd.Series(retracted_ncts).to_pickle("retracted_ncts.pkl")
+
+
+
+# Given the PMID (From Retractionwatch) what is the NCT? (or multiple NCTs!!)
+
+r_watch_pmids = pd.read_pickle("/users/jlindstr/code/retractionwatch/retracted_pmids.pkl")
+print(f"Unique RetractionWatch PMIDs:{len(r_watch_pmids.unique())}")
+
+r_watch_ncts = []
+for each_pmid in r_watch_pmids:
+    r_watch_ncts.extend(trials.get(each_pmid, []))
+
+unique_rwatch_ncts = list(set(r_watch_ncts))
+
+print(unique_rwatch_ncts[:5]) 
+
+print(len(unique_rwatch_ncts)) #143
+
+pd.Series(unique_rwatch_ncts).to_pickle("r_watch_ncts.pkl")
+

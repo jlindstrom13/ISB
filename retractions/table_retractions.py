@@ -41,9 +41,7 @@ table = pd.DataFrame(rows)
 
 # Add a column of 0 and 1s for retracted papers
 # 1 = retracted pmid, 0 = not retracted pmid
-
-# test= get_pmid_by_type("D016441") # Retractions: DO16441
-# print(f"trying to use function {test[5]}")
+# Multiple of the same NCT listed, maps to diff publications
 
 retracted_pmids = set(
     get_pmid_by_type("D016441")
@@ -62,3 +60,25 @@ print(len(table))
 
 # print(table[table["MeSH_ct"] == 0].head())
 # conclusion: there are some trials not labeled CT MeSH but do have an NCT number associated w trial
+print(table['retracted'].value_counts())
+
+
+
+# Going other way... table of multiple of same pmid mapping to diff ncts
+# silly.. this actually is the same exact table as above
+rows = []
+for pmid, nct_list in trials.items():
+    for each_nct in nct_list:
+        rows.append({"PMID": pmid, "NCT": each_nct})
+
+pmid_nct_table = pd.DataFrame(rows)
+
+pmid_nct_table["retracted"] = pmid_nct_table["PMID"].isin(retracted_pmids).astype(int)
+
+print(pmid_nct_table.head())
+print(pmid_nct_table["retracted"].value_counts())
+
+
+retracted_ncts = pmid_nct_table[pmid_nct_table["retracted"] == 1]["NCT"].unique()
+
+pd.Series(retracted_ncts).to_pickle("retracted_ncts.pkl")

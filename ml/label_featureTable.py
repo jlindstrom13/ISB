@@ -47,65 +47,10 @@ df.loc[df['nct_id'].isin(nct_0), 'label'] = 0
 # Save df to pkl for other ML uses
 df.to_pickle("featureTable_labeled.pkl")
 
-
-
-# drop NCT ID column and label column
-X = df.drop(columns=["nct_id", "label"])
-
-# label variable only
-y = df["label"]
-
-
-# First ML attempt.... using random forest
-X = X[y.notna()]
-y = y[y.notna()].astype(int)
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-clf = RandomForestClassifier(random_state=42)
-clf.fit(X_train, y_train)
-
-y_pred = clf.predict(X_test)
-print(classification_report(y_test, y_pred))
-
-# confusion matrix aka 2x2 or contingency table
-cm = confusion_matrix(y_test, y_pred)
-print("Confusion Matrix:")
-print(cm)
-
-
-plt.figure(figsize=(8, 6))
-sns.heatmap(cm, annot=True, fmt="d", cmap="Blues",
-            xticklabels=['Predicted 0', 'Predicted 1'],
-            yticklabels=['Actual 0', 'Actual 1'])
-plt.xlabel('Predicted Label')
-plt.ylabel('True Label')
-plt.title('Contingency Table')
-plt.savefig("contingency_table.png")
-
-
-#Training accuracy
-y_train_pred = clf.predict(X_train)
-train_accuracy = accuracy_score(y_train, y_train_pred)
-print(f"Training Accuracy: {train_accuracy:.4f}")
-
-
-#Test accuracy
-
-test_accuracy = accuracy_score(y_test, y_pred)
-print(f"Test Accuracy: {test_accuracy:.4f}")
-
-
-
+# Printing 4 random "untrustworthy" NCTs
 ncts_list = list(all_ncts_1)
 
 random_5_ncts = random.sample(ncts_list, 5)
 
 print(f"Random 5 NCTs from untrustworthy label: {random_5_ncts}")
 
-
-importances = clf.feature_importances_
-feature_names = X.columns
-feat_imp = sorted(zip(feature_names, importances), key=lambda x: x[1], reverse=True)
-for feat, imp in feat_imp[:10]:
-    print(f"{feat}: {imp:.4f}")

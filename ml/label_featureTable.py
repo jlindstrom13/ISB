@@ -1,4 +1,5 @@
 # Use pkl of discrepant NCTs to label the feature table 0-1
+# Random forest ML below
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
@@ -7,6 +8,8 @@ from sklearn.metrics import classification_report, accuracy_score
 from sklearn.metrics import confusion_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
+import random
+
 
 df = pd.read_pickle("featureTable.pkl")
 
@@ -36,10 +39,15 @@ num_ncts = len(all_ncts_1)
 
 unlabeled_nctids = df.loc[df['label'].isna(), 'nct_id']
 
-np.random.seed(42)  
+np.random.seed(36)  
 nct_0 = np.random.choice(unlabeled_nctids, size=num_ncts, replace=False)
 
 df.loc[df['nct_id'].isin(nct_0), 'label'] = 0
+
+# Save df to pkl for other ML uses
+df.to_pickle("featureTable_labeled.pkl")
+
+
 
 # drop NCT ID column and label column
 X = df.drop(columns=["nct_id", "label"])
@@ -86,3 +94,18 @@ print(f"Training Accuracy: {train_accuracy:.4f}")
 
 test_accuracy = accuracy_score(y_test, y_pred)
 print(f"Test Accuracy: {test_accuracy:.4f}")
+
+
+
+ncts_list = list(all_ncts_1)
+
+random_5_ncts = random.sample(ncts_list, 5)
+
+print(f"Random 5 NCTs from untrustworthy label: {random_5_ncts}")
+
+
+importances = clf.feature_importances_
+feature_names = X.columns
+feat_imp = sorted(zip(feature_names, importances), key=lambda x: x[1], reverse=True)
+for feat, imp in feat_imp[:10]:
+    print(f"{feat}: {imp:.4f}")

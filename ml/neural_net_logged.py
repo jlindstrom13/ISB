@@ -10,22 +10,30 @@ from sklearn.metrics import accuracy_score, classification_report
 from imblearn.pipeline import Pipeline
 from imblearn.over_sampling import RandomOverSampler
 
+
+# Command line arguments: 
+parser = argparse.ArgumentParser(description="Train with custom epochs")
+parser.add_argument("--epochs", type=int, default=500, help="Number of training epochs (max_iter)")
+parser.add_argument("--k_features", type=int, default=96, help="Number of features to select with chi2")
+args = parser.parse_args()
+
+# Loading data:
 df = pd.read_pickle("featureTable_labeled.pkl") #160 columns/ features
 
-# Split data 
+# Splitting data:
 X = df.drop(columns=["nct_id", "label"])
 y = df["label"]
 X = X[y.notna()]
 y = y[y.notna()].astype(int)
 
-# cant have a column of just NAs 
+# Dropping empty columns:
 empty_cols = X.columns[X.isna().all()]
 print("Dropping empty columns:", empty_cols.tolist())
 X = X.drop(columns=empty_cols)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=36)
 
-# Pipeline with scaling + neural network
+# Pipeline with chi squared + neural network
 nn_pipeline = Pipeline([
     ('imputer', SimpleImputer(strategy='median')),
     ('minmax', MinMaxScaler()),     # Instead of standard schalar bc chi2 cant take negs
@@ -36,11 +44,11 @@ nn_pipeline = Pipeline([
                          learning_rate_init=1e-4,
                          solver='adam', 
                          early_stopping=True,
-                         max_iter=500, 
+                         max_iter=args.epochs, 
                          random_state=36))
 ])
 
-# training
+# Training
 nn_pipeline.fit(X_train, y_train)
 
 y_pred = nn_pipeline.predict(X_test)
@@ -52,3 +60,5 @@ y_train_pred = nn_pipeline.predict(X_train)
 train_accuracy = accuracy_score(y_train, y_train_pred)
 print(f"Training Accuracy: {train_accuracy:.4f}")
 
+with open("nn_training_log.txt", "a") as f: #the "a" means append mode
+    f.write(f"Epochs: {args.epochs}, # of Features: {args.k_features}, Test Acc: {accuracy_score(y_test, y_pred):.4f}, Train Accuracy: {train_accuracy:.4f}\n")

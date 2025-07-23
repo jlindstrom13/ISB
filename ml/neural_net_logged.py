@@ -9,6 +9,11 @@ from sklearn.feature_selection import SelectKBest, chi2
 from sklearn.metrics import accuracy_score, classification_report
 from imblearn.pipeline import Pipeline
 from imblearn.over_sampling import RandomOverSampler
+from sklearn.metrics import confusion_matrix
+import matplotlib.pyplot as plt
+import seaborn as sns
+import shap
+
 
 
 # Command line arguments: 
@@ -62,3 +67,53 @@ print(f"Training Accuracy: {train_accuracy:.4f}")
 
 with open("nn_training_log.txt", "a") as f: #the "a" means append mode
     f.write(f"Epochs: {args.epochs}, # of Features: {args.k_features}, Test Acc: {accuracy_score(y_test, y_pred):.4f}, Train Accuracy: {train_accuracy:.4f}\n")
+
+
+# confusion matrix aka 2x2 or contingency table
+cm = confusion_matrix(y_test, y_pred)
+print("Confusion Matrix:")
+print(cm)
+
+plt.figure(figsize=(8, 6))
+sns.heatmap(cm, annot=True, fmt="d", cmap="Blues",
+            xticklabels=['Predicted 0', 'Predicted 1'],
+            yticklabels=['Actual 0', 'Actual 1'])
+plt.xlabel('Predicted Label')
+plt.ylabel('True Label')
+plt.title('Neural Net Contingency Table')
+plt.savefig("nn_contingency_table.png")
+plt.close()
+
+
+# Get a confidence score:
+probs = nn_pipeline.predict_proba(X_test)
+
+probs_df = pd.DataFrame(probs, columns=["prob_0", "prob_1"], index=X_test.index)
+
+nct_ids = df.loc[X_test.index, "nct_id"].reset_index(drop=True)
+probs_df = probs_df.reset_index(drop=True)
+probs_df["nct_id"] = nct_ids
+
+#probs_df = probs_df.sort_values("prob_1", ascending=False)
+
+# explainer = shap.KernelExplainer(nn_pipeline.predict,X_train)
+
+# shap_values = explainer.shap_values(X_test,nsamples=100)
+
+# shap.summary_plot(shap_values,X_test,feature_names=features)
+
+
+# SHAP plot
+# background = shap.sample(X_train, 100)  
+
+# def model_predict(X):
+#     return nn_pipeline.predict_proba(X)
+
+# explainer = shap.KernelExplainer(model_predict, background)
+# X_test_sample = X_test[:50]
+# shap_values = explainer.shap_values(X_test_sample)  # Optional: limit to first 50 for speed
+
+# X_test_transformed = nn_pipeline[:-1].transform(X_test_sample)  # all steps before 'nn'
+# shap.summary_plot(shap_values[1], X_test_transformed) # [1] = class 1
+# plt.savefig("nn_shap_summary_plot.png")
+# plt.close()

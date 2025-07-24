@@ -94,26 +94,59 @@ nct_ids = df.loc[X_test.index, "nct_id"].reset_index(drop=True)
 probs_df = probs_df.reset_index(drop=True)
 probs_df["nct_id"] = nct_ids
 
-#probs_df = probs_df.sort_values("prob_1", ascending=False)
+# SHAP Plot..
 
-# explainer = shap.KernelExplainer(nn_pipeline.predict,X_train)
+X_background = X_train.sample(100, random_state=36)
+X_sample = X_test.sample(50, random_state=36)
 
-# shap_values = explainer.shap_values(X_test,nsamples=100)
+# Preprocess these manually (impute, scale, select features)
+preprocessor = Pipeline([
+    ('imputer', nn_pipeline.named_steps['imputer']),
+    ('minmax', nn_pipeline.named_steps['minmax']),
+    ('chi2', nn_pipeline.named_steps['chi2'])
+])
 
-# shap.summary_plot(shap_values,X_test,feature_names=features)
+# Sample background and sample data
+X_background = X_train.sample(100, random_state=36)
+X_sample = X_test.sample(50, random_state=36)
+
+# Preprocessing pipeline to transform data consistently
+preprocessor = Pipeline([
+    ('imputer', nn_pipeline.named_steps['imputer']),
+    ('minmax', nn_pipeline.named_steps['minmax']),
+    ('chi2', nn_pipeline.named_steps['chi2'])
+])
 
 
-# SHAP plot
-# background = shap.sample(X_train, 100)  
+X_background = X_train.sample(100, random_state=36)
+X_sample = X_test.sample(100, random_state=36)
 
-# def model_predict(X):
-#     return nn_pipeline.predict_proba(X)
+preprocessor = Pipeline([
+    ('imputer', nn_pipeline.named_steps['imputer']),
+    ('minmax', nn_pipeline.named_steps['minmax']),
+    ('chi2', nn_pipeline.named_steps['chi2'])
+])
 
-# explainer = shap.KernelExplainer(model_predict, background)
-# X_test_sample = X_test[:50]
-# shap_values = explainer.shap_values(X_test_sample)  # Optional: limit to first 50 for speed
+X_background_transformed = preprocessor.transform(X_background)
+X_sample_transformed = preprocessor.transform(X_sample)
 
-# X_test_transformed = nn_pipeline[:-1].transform(X_test_sample)  # all steps before 'nn'
-# shap.summary_plot(shap_values[1], X_test_transformed) # [1] = class 1
-# plt.savefig("nn_shap_summary_plot.png")
-# plt.close()
+def predict_fn(X):
+    return nn_pipeline.named_steps['nn'].predict_proba(X)[:, 1]
+
+explainer = shap.KernelExplainer(predict_fn, X_background_transformed)
+
+shap_values = explainer.shap_values(X_sample_transformed, nsamples=100)
+
+selected_features = X.columns[nn_pipeline.named_steps['chi2'].get_support()]
+
+X_sample_df = pd.DataFrame(X_sample_transformed, columns=selected_features)
+
+plt.figure(figsize=(8, 8))
+shap.summary_plot(shap_values, X_sample_df, max_display=20, show=False)
+
+plt.title("SHAP Plot for Neural Net, Untrustworthy Trials")
+plt.xticks(fontsize=8)
+plt.yticks(fontsize=10)
+plt.tight_layout()
+plt.savefig("nn_shap_1.png")
+plt.close()

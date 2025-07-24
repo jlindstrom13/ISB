@@ -13,7 +13,7 @@ from sklearn.metrics import accuracy_score, classification_report
 from imblearn.pipeline import Pipeline
 from imblearn.over_sampling import RandomOverSampler
 
-# want to increase number of controls ....
+# CHANGE: want to increase number of controls ....
 
 
 # Loading data:
@@ -33,3 +33,15 @@ X = X.drop(columns=empty_cols)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=36)
 
 # Pipeline for Naive Bayes
+
+gnb = GaussianNB()
+
+y_pred = gnb.fit(X_train, y_train).predict(X_test)
+
+naive_pipeline = Pipeline([
+    ('imputer', SimpleImputer(strategy='median'))
+    ('scaler', StandardScaler())
+    ('nb', GaussianNB())
+])
+
+naive_pipeline.fit(X_train, y_train)

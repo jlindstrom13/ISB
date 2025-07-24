@@ -97,28 +97,6 @@ probs_df["nct_id"] = nct_ids
 # SHAP Plot..
 
 X_background = X_train.sample(100, random_state=36)
-X_sample = X_test.sample(50, random_state=36)
-
-# Preprocess these manually (impute, scale, select features)
-preprocessor = Pipeline([
-    ('imputer', nn_pipeline.named_steps['imputer']),
-    ('minmax', nn_pipeline.named_steps['minmax']),
-    ('chi2', nn_pipeline.named_steps['chi2'])
-])
-
-# Sample background and sample data
-X_background = X_train.sample(100, random_state=36)
-X_sample = X_test.sample(50, random_state=36)
-
-# Preprocessing pipeline to transform data consistently
-preprocessor = Pipeline([
-    ('imputer', nn_pipeline.named_steps['imputer']),
-    ('minmax', nn_pipeline.named_steps['minmax']),
-    ('chi2', nn_pipeline.named_steps['chi2'])
-])
-
-
-X_background = X_train.sample(100, random_state=36)
 X_sample = X_test.sample(100, random_state=36)
 
 preprocessor = Pipeline([
@@ -131,7 +109,7 @@ X_background_transformed = preprocessor.transform(X_background)
 X_sample_transformed = preprocessor.transform(X_sample)
 
 def predict_fn(X):
-    return nn_pipeline.named_steps['nn'].predict_proba(X)[:, 1]
+    return nn_pipeline.named_steps['nn'].predict_proba(X)[:, 1] #probability of class 1: untrustworthy
 
 explainer = shap.KernelExplainer(predict_fn, X_background_transformed)
 

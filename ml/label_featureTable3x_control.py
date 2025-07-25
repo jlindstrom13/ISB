@@ -1,12 +1,6 @@
-# Use pkl of discrepant NCTs to label the feature table 0-1
+# 3x Controls: Use pkl of discrepant NCTs to label the feature table 0-1
 import pandas as pd
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report, accuracy_score
-from sklearn.metrics import confusion_matrix
-import matplotlib.pyplot as plt
-import seaborn as sns
 import random
 
 
@@ -39,9 +33,9 @@ num_ncts = len(all_ncts_1)
 unlabeled_nctids = df.loc[df['label'].isna(), 'nct_id']
 
 np.random.seed(36)  
-nct_0 = np.random.choice(unlabeled_nctids, size=num_ncts, replace=False)
+nct_0 = np.random.choice(unlabeled_nctids, size=3*num_ncts, replace=False)
 
 df.loc[df['nct_id'].isin(nct_0), 'label'] = 0
 
 # Save df to pkl for other ML uses
-df.to_pickle("featureTable_labeled.pkl")
+df.to_pickle("featureTable_labeled_3xcontrol.pkl")

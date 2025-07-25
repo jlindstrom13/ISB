@@ -52,7 +52,7 @@ num_outlier_features = outlier_binary_matrix.drop(columns=['nctid']).sum(axis=1)
 
 counts = num_outlier_features.value_counts().sort_index()
 
-cutoff = 13
+cutoff = 4
 plt.figure(figsize=(10,6))
 plt.plot(counts.index, counts.values, marker='o')  # log1p adds one to help w 0 count
 plt.axvline(x=cutoff, color = 'red') 
@@ -64,11 +64,11 @@ plt.grid(True)
 plt.tight_layout()
 plt.savefig("filtered_dist_outlierfeatures.png")
 
-cutoff = 13
+cutoff = 4
 trials_above_cutoff = outlier_binary_matrix.loc[num_outlier_features > cutoff, 'nctid']
 print(f"Trials with more than {cutoff} outlier features (filtered):")
 print(f"Number of trials above cutoff: {len(trials_above_cutoff)}")
 print(trials_above_cutoff)
 
-trials_above_cutoff.to_pickle("trials_above_cutoff13.pkl")
+trials_above_cutoff.to_pickle("trials_above_cutoff4.pkl")
 

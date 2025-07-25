@@ -23,13 +23,16 @@ mask = y.notna()
 X = X[mask]
 y = y[mask].astype(int)
 
-# Dropping empty columns:
-empty_cols = X.columns[X.isna().all()]
-print("Dropping empty columns:", empty_cols.tolist())
-X = X.drop(columns=empty_cols)
 
 #splitting into train/test
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=36)
+
+# dropping columns that are empty in train, and then also dropping those from test
+train_empty_cols = X_train.columns[X_train.isna().all()]
+print("Dropping empty columns (from training set):", train_empty_cols.tolist())
+
+X_train = X_train.drop(columns=train_empty_cols)
+X_test = X_test.drop(columns=train_empty_cols)
 
 # RF pipeline
 rf_pipeline = Pipeline([
@@ -80,10 +83,13 @@ for feat, imp in feat_imp[:10]:
     print(f"{feat}: {imp:.4f}")
 
 # making shap plot- using imputed values
+
+valid_columns = X_train.columns # just the columns that were kept for training!
+
 X_train_imputed = rf_pipeline.named_steps['imputer'].transform(X_train)
 X_test_imputed = rf_pipeline.named_steps['imputer'].transform(X_test)
 
-X_test_sample = pd.DataFrame(X_test_imputed[:100], columns=X.columns)
+X_test_sample = pd.DataFrame(X_test_imputed[:100], columns=valid_columns)
 
 # SHAP explainer and values
 explainer = shap.TreeExplainer(rf_model, X_train_imputed)
@@ -94,7 +100,7 @@ plt.figure(figsize=(8, 4))
 shap.summary_plot(shap_values[:, :, 1], X_test_sample, max_display= 20)
 plt.xticks(fontsize=8)
 plt.yticks(fontsize=10)
-plt.title("SHAP Plot for Random Forest, Untrustworthy Trials", fontsize=12)
+plt.title("SHAP Plot for Random Forest, Untrustworthy Trials- Updated", fontsize=12)
 plt.tight_layout()
 plt.savefig("rf_shap_1.png")
 plt.close()

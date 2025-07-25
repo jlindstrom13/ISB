@@ -14,8 +14,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import shap
 
-
-
 # Command line arguments: 
 parser = argparse.ArgumentParser(description="Train with custom epochs")
 parser.add_argument("--epochs", type=int, default=500, help="Number of training epochs (max_iter)")
@@ -31,12 +29,14 @@ y = df["label"]
 X = X[y.notna()]
 y = y[y.notna()].astype(int)
 
-# Dropping empty columns:
-empty_cols = X.columns[X.isna().all()]
-print("Dropping empty columns:", empty_cols.tolist())
-X = X.drop(columns=empty_cols)
-
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=36)
+
+# dropping columns that are empty in train, and then also dropping those from test
+train_empty_cols = X_train.columns[X_train.isna().all()]
+print("Dropping empty columns (from training set):", train_empty_cols.tolist())
+
+X_train = X_train.drop(columns=train_empty_cols)
+X_test = X_test.drop(columns=train_empty_cols)
 
 # Pipeline with chi squared + neural network
 nn_pipeline = Pipeline([
@@ -115,16 +115,19 @@ explainer = shap.KernelExplainer(predict_fn, X_background_transformed)
 
 shap_values = explainer.shap_values(X_sample_transformed, nsamples=100)
 
-selected_features = X.columns[nn_pipeline.named_steps['chi2'].get_support()]
+valid_columns = X_train.columns # just the columns that were kept for training!
+
+selected_features = X.valid_columns[nn_pipeline.named_steps['chi2'].get_support()]
+
 
 X_sample_df = pd.DataFrame(X_sample_transformed, columns=selected_features)
 
 plt.figure(figsize=(8, 8))
 shap.summary_plot(shap_values, X_sample_df, max_display=20, show=False)
 
-plt.title("SHAP Plot for Neural Net, Untrustworthy Trials")
+plt.title("SHAP Plot for Neural Net, Untrustworthy Trials -updated")
 plt.xticks(fontsize=8)
 plt.yticks(fontsize=10)
 plt.tight_layout()
-plt.savefig("nn_shap_1.png")
+plt.savefig("nn_shap_updated.png")
 plt.close()

@@ -39,20 +39,20 @@ stability_imputed = imputer.fit_transform(stability_df_no_nct)
 scaler = StandardScaler()
 stability_standardized = scaler.fit_transform(stability_imputed)
 
-pca=PCA(n_components=2)
+pca=PCA(n_components=10)
 pca_result = pca.fit_transform(stability_standardized)
 
 print("(Standardized) Explained variance ratio:", pca.explained_variance_ratio_)
 print("(Standardized) Cumulative variance:", np.cumsum(pca.explained_variance_ratio_))
 
 #Scree Plot:
-plt.bar(range(1, len(pca.explained_variance_ratio_) + 1), pca.explained_variance_ratio_)
-plt.xlabel('Component Number')
+plt.bar(range(1, 11), pca.explained_variance_ratio_[:10])
+plt.xlabel('Principal Component')
 plt.ylabel('Explained Variance')
 plt.title('Scree Plot')
-plt.xticks(range(1, 3))
+plt.xticks(range(1, 11))
 plt.grid(True, axis='y')
-plt.savefig("scree_plot")
+plt.savefig("scree_plot_10pc")
 
 loadings = pd.DataFrame(pca.components_.T,
                         columns=['PC1', 'PC2'],

@@ -21,7 +21,7 @@ parser.add_argument("--k_features", type=int, default=96, help="Number of featur
 args = parser.parse_args()
 
 # Loading data:
-df = pd.read_pickle("featureTable_labeled.pkl") #160 columns/ features
+df = pd.read_pickle("matched_featureTable_labeled.pkl") #160 columns/ features
 
 # Splitting data:
 X = df.drop(columns=["nct_id", "label"])
@@ -80,8 +80,8 @@ sns.heatmap(cm, annot=True, fmt="d", cmap="Blues",
             yticklabels=['Actual 0', 'Actual 1'])
 plt.xlabel('Predicted Label')
 plt.ylabel('True Label')
-plt.title('Neural Net Contingency Table')
-plt.savefig("nn_contingency_table.png")
+plt.title('Neural Net Contingency Table (matched)')
+plt.savefig("nn_contingency_matched.png")
 plt.close()
 
 
@@ -117,7 +117,7 @@ shap_values = explainer.shap_values(X_sample_transformed, nsamples=100)
 
 valid_columns = X_train.columns # just the columns that were kept for training!
 
-selected_features = X.valid_columns[nn_pipeline.named_steps['chi2'].get_support()]
+selected_features = valid_columns[nn_pipeline.named_steps['chi2'].get_support()]
 
 
 X_sample_df = pd.DataFrame(X_sample_transformed, columns=selected_features)
@@ -125,9 +125,9 @@ X_sample_df = pd.DataFrame(X_sample_transformed, columns=selected_features)
 plt.figure(figsize=(8, 8))
 shap.summary_plot(shap_values, X_sample_df, max_display=20, show=False)
 
-plt.title("SHAP Plot for Neural Net, Untrustworthy Trials -updated")
+plt.title("Matched Neural Net, Untrustworthy Trials")
 plt.xticks(fontsize=8)
 plt.yticks(fontsize=10)
 plt.tight_layout()
-plt.savefig("nn_shap_updated.png")
+plt.savefig("nn_shap_matched.png")
 plt.close()

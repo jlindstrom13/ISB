@@ -11,10 +11,12 @@ import random
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.impute import SimpleImputer
 import shap
+from sklearn.model_selection import cross_val_score, StratifiedKFold
+from sklearn.model_selection import GridSearchCV
 
 
 # Loading data:
-df = pd.read_pickle("featureTable_labeled.pkl") #160 columns/ features
+df = pd.read_pickle("matched_featureTable_labeled.pkl") #160 columns/ features
 
 # Splitting data into x and y:
 X = df.drop(columns=["nct_id", "label"])
@@ -23,23 +25,42 @@ mask = y.notna()
 X = X[mask]
 y = y[mask].astype(int)
 
-
+# delete empty columns (can't replace with median! when imputing)
+empty_cols = X.columns[X.isna().all()]
+print("Dropping empty columns from full dataset:", empty_cols.tolist())
+X = X.drop(columns=empty_cols)
+X = X.drop(columns=['studies:is_ppsd'])
 #splitting into train/test
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=36)
-
-# dropping columns that are empty in train, and then also dropping those from test
-train_empty_cols = X_train.columns[X_train.isna().all()]
-print("Dropping empty columns (from training set):", train_empty_cols.tolist())
-
-X_train = X_train.drop(columns=train_empty_cols)
-X_test = X_test.drop(columns=train_empty_cols)
 
 # RF pipeline
 rf_pipeline = Pipeline([
     ('imputer', SimpleImputer(strategy='median')),
-    ('rf', RandomForestClassifier(random_state=36))
+    ('rf', RandomForestClassifier(random_state=36, 
+                                  n_estimators=400, 
+                                  max_depth =None,
+                                  max_features = 'sqrt',
+                                  min_samples_leaf =  5,
+                                  min_samples_split =  20))
 ])
+#'rf__max_depth': None, 'rf__max_features': 'sqrt', 'rf__min_samples_leaf': 5, 'rf__min_samples_split': 20, 'rf__n_estimators': 400
 
+
+
+# uses gridsearch CV to see which params maximize train and test error
+# param_grid = {
+#     'rf__n_estimators': [200, 300, 400],
+#     'rf__max_depth': [8, 10, 12, None],
+#     'rf__min_samples_split': [5, 10, 20],
+#     'rf__min_samples_leaf': [1, 2, 5],
+#     'rf__max_features': ['sqrt', 'log2']
+# }
+
+# grid = GridSearchCV(rf_pipeline, param_grid, cv=5, scoring='accuracy', n_jobs=-1)
+# grid.fit(X_train, y_train)
+
+# print("Best params:", grid.best_params_)
+# print("Best CV accuracy:", grid.best_score_)
 
 # Training
 rf_pipeline.fit(X_train, y_train)
@@ -48,20 +69,20 @@ y_pred = rf_pipeline.predict(X_test)
 print(classification_report(y_test, y_pred))
 
 # confusion matrix aka 2x2 or contingency table
-cm = confusion_matrix(y_test, y_pred)
-print("Confusion Matrix:")
-print(cm)
+# cm = confusion_matrix(y_test, y_pred)
+# print("Confusion Matrix:")
+# print(cm)
 
 
-plt.figure(figsize=(8, 6))
-sns.heatmap(cm, annot=True, fmt="d", cmap="Blues",
-            xticklabels=['Predicted 0', 'Predicted 1'],
-            yticklabels=['Actual 0', 'Actual 1'])
-plt.xlabel('Predicted Label')
-plt.ylabel('True Label')
-plt.title('Random Forest Contingency Table')
-plt.savefig("rf_contingency_table.png")
-plt.close()
+# plt.figure(figsize=(8, 6))
+# sns.heatmap(cm, annot=True, fmt="d", cmap="Blues",
+#             xticklabels=['Predicted 0', 'Predicted 1'],
+#             yticklabels=['Actual 0', 'Actual 1'])
+# plt.xlabel('Predicted Label')
+# plt.ylabel('True Label')
+# plt.title('Matched Random Forest Contingency Table')
+# plt.savefig("rf_contingency_matched_k.png")
+# plt.close()
 
 
 #Training accuracy
@@ -74,13 +95,13 @@ print(f"Training Accuracy: {train_accuracy:.4f}")
 test_accuracy = accuracy_score(y_test, y_pred)
 print(f"Test Accuracy: {test_accuracy:.4f}")
 
-# Importances
+# # Importances
 rf_model = rf_pipeline.named_steps['rf']
-importances = rf_model.feature_importances_
-feature_names = X.columns
-feat_imp = sorted(zip(feature_names, importances), key=lambda x: x[1], reverse=True)
-for feat, imp in feat_imp[:10]:
-    print(f"{feat}: {imp:.4f}")
+# importances = rf_model.feature_importances_
+# feature_names = X.columns
+# feat_imp = sorted(zip(feature_names, importances), key=lambda x: x[1], reverse=True)
+# for feat, imp in feat_imp[:10]:
+#     print(f"{feat}: {imp:.4f}")
 
 # making shap plot- using imputed values
 
@@ -100,10 +121,30 @@ plt.figure(figsize=(8, 4))
 shap.summary_plot(shap_values[:, :, 1], X_test_sample, max_display= 20)
 plt.xticks(fontsize=8)
 plt.yticks(fontsize=10)
-plt.title("SHAP Plot for Random Forest, Untrustworthy Trials- Updated", fontsize=12)
+plt.title("Matched Random Forest, Untrustworthy Trials", fontsize=12)
 plt.tight_layout()
-plt.savefig("rf_shap_1.png")
+plt.savefig("rf_shap_matched.png")
 plt.close()
 
+
+# Production time!
+
+production = pd.read_pickle("production.pkl")
+
+X_prod = production.drop(columns=["nct_id","studies:is_ppsd", "label"] + empty_cols.tolist())
+X_prod = X_prod.drop(columns=X_prod.columns[X_prod.isna().all()], errors='ignore')
+
+# Prediction
+prod_preds = rf_pipeline.predict(X_prod)
+prod_pred_probs = rf_pipeline.predict_proba(X_prod)
+
+# Save predictions
+production["predicted_label"] = prod_preds
+production["prob_0"] = prod_pred_probs[:, 0]
+production["prob_1"] = prod_pred_probs[:, 1]
+
+# Export
+production.to_pickle("rf_production_predictions.pkl")
+production.to_csv("rf_production_predictions.csv", index=False)
 
 

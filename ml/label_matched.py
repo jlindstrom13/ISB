@@ -2,26 +2,26 @@
 
 import pandas as pd
 
-file_path = "matched_cases_controls.pkl"
 
-df = pd.read_pickle(file_path)
+df = pd.read_pickle("matched_cases_controls.pkl")
 
-path = "featureTable.pkl"
+df_features = pd.read_pickle("featureTable.pkl")
 
-df_features = pd.read_pickle(path)
+print(f"df_features column names {df_features.columns}")
 
 
 cases = df[['cases']].copy()
-cases.columns = ['nctid']
+cases.columns = ['nct_id']
 cases['label'] = 1
 
 controls = df[['controls']].copy()
-controls.columns = ['nctid']
+controls.columns = ['nct_id']
 controls['label']=0
 
-labeled_df = pd.concat([cases, controls], ignore_index=True)
+labels_df = pd.concat([cases, controls], ignore_index=True)
 
+df_features_labeled = df_features.merge(labels_df, on='nct_id', how='inner')  # inner join keeps only matched rows
 
-labeled_matched_features = df_features[df_features['nct_id'].isin(labeled_df['nctid'])]
+print(df_features_labeled['label'].value_counts())
 
-print(labeled_matched_features.shape)
+df_features_labeled.to_pickle("matched_featureTable_labeled.pkl")

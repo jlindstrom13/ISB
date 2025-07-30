@@ -57,3 +57,10 @@ controls_df = df[df['label'] == 0].copy()
 
 cases_df.to_pickle("cases_df.pkl")
 controls_df.to_pickle("controls_df.pkl")
+
+
+df_production = df[df['label'].isna()].copy()
+
+df_production.to_pickle("production.pkl")
+
+print(df_production.shape)

@@ -40,6 +40,32 @@ discrepant_points = umap_df[umap_df["is_discrepant"]]
 random_sample = umap_df.sample(n=58, random_state=42)
 
 
+# blank UMAP 
+plt.figure()
+plt.scatter(
+    embedding[:, 0],
+    embedding[:, 1],
+    c="#f5f5f5",
+    alpha = 0.01,
+    s = 1)
+plt.gca().set_aspect('equal', 'datalim')
+plt.title('UMAP of Stability data', fontsize=10);
+plt.savefig("umap_blank")
+
+plt.figure()
+plt.scatter(
+    embedding[:, 0],
+    embedding[:, 1],
+    c="#dcdcdcbf",
+    alpha = 0.01,
+    s = 1)
+plt.gca().set_aspect('equal', 'datalim')
+plt.title('UMAP of Stability data', fontsize=10);
+plt.savefig("umap_blank_darkergray")
+
+
+
+
 plt.figure()
 plt.scatter(
     embedding[:, 0],
@@ -63,4 +89,23 @@ plt.scatter(
 )
 plt.gca().set_aspect('equal', 'datalim')
 plt.title('UMAP of Stability data, Discrepancies between Publication & Trial Highlighted', fontsize=10);
-plt.savefig("umap_stability_discrepancies")
+plt.savefig("umap_stability_discrepancies_random")
+
+
+plt.figure()
+plt.scatter(
+    embedding[:, 0],
+    embedding[:, 1],
+    c="#f5f5f5",
+    alpha = 0.01,
+    s = 1)
+plt.scatter(
+    discrepant_points["UMAP1"],
+    discrepant_points["UMAP2"],
+    c="purple",
+    s=2,
+    alpha=0.2,
+    )
+plt.gca().set_aspect('equal', 'datalim')
+plt.title('UMAP of Stability data, Discrepancies between Publication & Trial Highlighted', fontsize=10);
+plt.savefig("umap_stability_discrepancies_only")

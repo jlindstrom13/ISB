@@ -13,6 +13,7 @@ from sklearn.metrics import confusion_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
 import shap
+from sklearn.model_selection import GridSearchCV
 
 # Command line arguments: 
 parser = argparse.ArgumentParser(description="Train with custom epochs")
@@ -24,7 +25,7 @@ args = parser.parse_args()
 df = pd.read_pickle("matched_featureTable_labeled.pkl") #160 columns/ features
 
 # Splitting data:
-X = df.drop(columns=["nct_id", "label"])
+X = df.drop(columns=["nct_id", "label",'studies:is_ppsd' ])
 y = df["label"]
 X = X[y.notna()]
 y = y[y.notna()].astype(int)
@@ -42,16 +43,31 @@ X_test = X_test.drop(columns=train_empty_cols)
 nn_pipeline = Pipeline([
     ('imputer', SimpleImputer(strategy='median')),
     ('minmax', MinMaxScaler()),     # Instead of standard schalar bc chi2 cant take negs
-    ('chi2', SelectKBest(score_func=chi2, k=96)),         
-    ('nn', MLPClassifier(hidden_layer_sizes=(64, 32), 
+    ('chi2', SelectKBest(score_func=chi2, k=120)),         
+    ('nn', MLPClassifier(hidden_layer_sizes=(100, 50), 
                          activation='relu', 
                          learning_rate="adaptive",
-                         learning_rate_init=1e-4,
+                         learning_rate_init=0.001,
                          solver='adam', 
                          early_stopping=True,
-                         max_iter=args.epochs, 
+                         max_iter=200, 
                          random_state=36))
 ])
+
+# GridsearchCV to maximize params
+# param_grid = {
+#     'chi2__k': [50, 75, 96, 120],
+#     'nn__hidden_layer_sizes': [(64, 32), (100, 50), (50, 25)],
+#     'nn__learning_rate_init': [1e-3, 1e-4],
+#     'nn__max_iter': [200, 500]
+# }
+
+# grid = GridSearchCV(nn_pipeline, param_grid, cv=5, scoring='accuracy', n_jobs=-1, verbose=2)
+# grid.fit(X_train, y_train)
+
+# print("Best params:", grid.best_params_)
+# print("Best CV accuracy:", grid.best_score_)
+
 
 # Training
 nn_pipeline.fit(X_train, y_train)
@@ -70,19 +86,19 @@ with open("nn_training_log.txt", "a") as f: #the "a" means append mode
 
 
 # confusion matrix aka 2x2 or contingency table
-cm = confusion_matrix(y_test, y_pred)
-print("Confusion Matrix:")
-print(cm)
+# cm = confusion_matrix(y_test, y_pred)
+# print("Confusion Matrix:")
+# print(cm)
 
-plt.figure(figsize=(8, 6))
-sns.heatmap(cm, annot=True, fmt="d", cmap="Blues",
-            xticklabels=['Predicted 0', 'Predicted 1'],
-            yticklabels=['Actual 0', 'Actual 1'])
-plt.xlabel('Predicted Label')
-plt.ylabel('True Label')
-plt.title('Neural Net Contingency Table (matched)')
-plt.savefig("nn_contingency_matched.png")
-plt.close()
+# plt.figure(figsize=(8, 6))
+# sns.heatmap(cm, annot=True, fmt="d", cmap="Blues",
+#             xticklabels=['Predicted 0', 'Predicted 1'],
+#             yticklabels=['Actual 0', 'Actual 1'])
+# plt.xlabel('Predicted Label')
+# plt.ylabel('True Label')
+# plt.title('Neural Net Contingency Table (matched)')
+# plt.savefig("nn_contingency_matched.png")
+# plt.close()
 
 
 # Get a confidence score:

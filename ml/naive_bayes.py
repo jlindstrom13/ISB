@@ -25,7 +25,7 @@ import numpy as np
 
 
 # Loading data:
-df = pd.read_pickle("featureTable_labeled_3xcontrol.pkl") #160 columns/ features
+df = pd.read_pickle("featureTable_labeled.pkl") #160 columns/ features
 
 # Splitting data:
 X = df.drop(columns=["nct_id", "label"])
@@ -36,7 +36,7 @@ y = y[y.notna()].astype(int)
 # Dropping empty columns:
 empty_cols = X.columns[X.isna().all()]
 print("Dropping empty columns:", empty_cols.tolist())
-X = X.drop(columns=empty_cols)
+X = X.drop(columns=empty_cols + ['studies:is_ppsd'])
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=36)
 
@@ -102,5 +102,5 @@ plt.xticks(fontsize=8)
 plt.yticks(fontsize=10)
 plt.title("SHAP Plot for Naive Bayes, Untrustworthy Trials", fontsize=12)
 plt.tight_layout()
-plt.savefig("naive_shap_1.png")
+plt.savefig("naive_shap.png")
 plt.close()

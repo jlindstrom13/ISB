@@ -62,8 +62,6 @@ print(len(table))
 # conclusion: there are some trials not labeled CT MeSH but do have an NCT number associated w trial
 print(table['retracted'].value_counts())
 
-
-
 # Going other way... table of multiple of same pmid mapping to diff ncts
 # silly.. this actually is the same exact table as above
 rows = []
@@ -81,6 +79,8 @@ print(pmid_nct_table["retracted"].value_counts())
 
 retracted_ncts = pmid_nct_table[pmid_nct_table["retracted"] == 1]["NCT"].unique()
 
+
+print(f"length retracted NCTs pubmed.db: {len(retracted_ncts)}")
 pd.Series(retracted_ncts).to_pickle("retracted_ncts.pkl")
 
 
@@ -98,7 +98,7 @@ unique_rwatch_ncts = list(set(r_watch_ncts))
 
 print(unique_rwatch_ncts[:5]) 
 
-print(len(unique_rwatch_ncts)) #143
+print(f"Number of retracted ncts from Rwatch: {len(unique_rwatch_ncts)}") #143
 
 pd.Series(unique_rwatch_ncts).to_pickle("r_watch_ncts.pkl")
 

@@ -76,12 +76,16 @@ pmid_nct_table["retracted"] = pmid_nct_table["PMID"].isin(retracted_pmids).astyp
 print(pmid_nct_table.head())
 print(pmid_nct_table["retracted"].value_counts())
 
+total_unique_pmids = pmid_nct_table["PMID"].unique()
+print(f"total unique pmids from pubmed.db: {len(total_unique_pmids)}")
+
+total_unique_ncts = pmid_nct_table["NCT"].unique()
+print(f"total unique ncts from pubmed.db: {len(total_unique_ncts)}")
 
 retracted_ncts = pmid_nct_table[pmid_nct_table["retracted"] == 1]["NCT"].unique()
 
-
 print(f"length retracted NCTs pubmed.db: {len(retracted_ncts)}")
-pd.Series(retracted_ncts).to_pickle("retracted_ncts.pkl")
+pd.Series(retracted_ncts).to_pickle("retracted_pm_ncts.pkl")
 
 
 

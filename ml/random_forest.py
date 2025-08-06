@@ -29,7 +29,7 @@ y = y[mask].astype(int)
 empty_cols = X.columns[X.isna().all()]
 print("Dropping empty columns from full dataset:", empty_cols.tolist())
 X = X.drop(columns=empty_cols)
-X = X.drop(columns=['studies:is_ppsd'])
+# X = X.drop(columns=['studies:is_ppsd'])
 #splitting into train/test
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=36)
 
@@ -121,30 +121,30 @@ plt.figure(figsize=(8, 4))
 shap.summary_plot(shap_values[:, :, 1], X_test_sample, max_display= 20)
 plt.xticks(fontsize=8)
 plt.yticks(fontsize=10)
-plt.title("Matched Random Forest, Untrustworthy Trials", fontsize=12)
+plt.title("Matched Random Forest, Untrustworthy Trials, v2", fontsize=12)
 plt.tight_layout()
-plt.savefig("rf_shap_matched.png")
+plt.savefig("rf_shap_matched2.png")
 plt.close()
 
 
 # Production time!
 
-production = pd.read_pickle("production.pkl")
+# production = pd.read_pickle("production.pkl")
 
-X_prod = production.drop(columns=["nct_id","studies:is_ppsd", "label"] + empty_cols.tolist())
-X_prod = X_prod.drop(columns=X_prod.columns[X_prod.isna().all()], errors='ignore')
+# X_prod = production.drop(columns=["nct_id","studies:is_ppsd", "label"] + empty_cols.tolist())
+# X_prod = X_prod.drop(columns=X_prod.columns[X_prod.isna().all()], errors='ignore')
 
-# Prediction
-prod_preds = rf_pipeline.predict(X_prod)
-prod_pred_probs = rf_pipeline.predict_proba(X_prod)
+# # Prediction
+# prod_preds = rf_pipeline.predict(X_prod)
+# prod_pred_probs = rf_pipeline.predict_proba(X_prod)
 
-# Save predictions
-production["predicted_label"] = prod_preds
-production["prob_0"] = prod_pred_probs[:, 0]
-production["prob_1"] = prod_pred_probs[:, 1]
+# # Save predictions
+# production["predicted_label"] = prod_preds
+# production["prob_0"] = prod_pred_probs[:, 0]
+# production["prob_1"] = prod_pred_probs[:, 1]
 
-# Export
-production.to_pickle("rf_production_predictions.pkl")
-production.to_csv("rf_production_predictions.csv", index=False)
+# # Export
+# production.to_pickle("rf_production_predictions.pkl")
+# production.to_csv("rf_production_predictions.csv", index=False)
 
 

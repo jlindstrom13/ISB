@@ -97,7 +97,7 @@ with open("nn_training_log.txt", "a") as f: #the "a" means append mode
 # plt.xlabel('Predicted Label')
 # plt.ylabel('True Label')
 # plt.title('Neural Net Contingency Table (matched)')
-# plt.savefig("nn_contingency_matched.png")
+# plt.savefig("Contingency_tables/nn_contingency_matched.png")
 # plt.close()
 
 
@@ -141,9 +141,9 @@ X_sample_df = pd.DataFrame(X_sample_transformed, columns=selected_features)
 plt.figure(figsize=(8, 8))
 shap.summary_plot(shap_values, X_sample_df, max_display=20, show=False)
 
-plt.title("Matched Neural Net, Untrustworthy Trials")
+plt.title("Matched Neural Net, Untrustworthy Trials, v2")
 plt.xticks(fontsize=8)
 plt.yticks(fontsize=10)
 plt.tight_layout()
-plt.savefig("nn_shap_matched.png")
+plt.savefig("SHAP_plots/nn_shap_matched2.png")
 plt.close()

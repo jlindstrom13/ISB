@@ -81,7 +81,7 @@ print(classification_report(y_test, y_pred))
 # plt.xlabel('Predicted Label')
 # plt.ylabel('True Label')
 # plt.title('Matched Random Forest Contingency Table')
-# plt.savefig("rf_contingency_matched_k.png")
+# plt.savefig("Contingency_tables/rf_contingency_matched_k.png")
 # plt.close()
 
 
@@ -129,22 +129,22 @@ plt.close()
 
 # Production time!
 
-# production = pd.read_pickle("production.pkl")
+production = pd.read_pickle("production.pkl")
 
-# X_prod = production.drop(columns=["nct_id","studies:is_ppsd", "label"] + empty_cols.tolist())
-# X_prod = X_prod.drop(columns=X_prod.columns[X_prod.isna().all()], errors='ignore')
+X_prod = production.drop(columns=["nct_id","studies:is_ppsd", "label"] + empty_cols.tolist())
+X_prod = X_prod.drop(columns=X_prod.columns[X_prod.isna().all()], errors='ignore')
 
-# # Prediction
-# prod_preds = rf_pipeline.predict(X_prod)
-# prod_pred_probs = rf_pipeline.predict_proba(X_prod)
+# Prediction
+prod_preds = rf_pipeline.predict(X_prod)
+prod_pred_probs = rf_pipeline.predict_proba(X_prod)
 
-# # Save predictions
-# production["predicted_label"] = prod_preds
-# production["prob_0"] = prod_pred_probs[:, 0]
-# production["prob_1"] = prod_pred_probs[:, 1]
+# Save predictions
+production["predicted_label"] = prod_preds
+production["prob_0"] = prod_pred_probs[:, 0]
+production["prob_1"] = prod_pred_probs[:, 1]
 
-# # Export
-# production.to_pickle("rf_production_predictions.pkl")
-# production.to_csv("rf_production_predictions.csv", index=False)
+# Export
+production.to_pickle("rf_production_predictions.pkl")
+production.to_csv("rf_production_predictions.csv", index=False)
 
 

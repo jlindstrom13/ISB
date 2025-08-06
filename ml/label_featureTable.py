@@ -11,7 +11,7 @@ import random
 # Load the feature table
 df = pd.read_pickle("featureTable.pkl")
 
-
+print(f"Length of featureTable Original: {len(df)}")
 # Load lists of "untrustworthy" trial NCTs: 
 # - Discrepant trials
 # - Retracted trials (PubMed and ClinicalTrials.gov)
@@ -33,7 +33,7 @@ print(f" length of rwatch trials: {len(rwatch_nctids)}")
 # Combine all untrustworthy trials into a single set using union
 all_ncts_1 = set(discrepant_nctids) | set(retracted_pm_nctids) | set(stability_nctids) | set(retracted_ct_nctids) | set(rwatch_nctids)
 
-print(f" length of untrustworthy trials: {len(all_ncts_1)}") #11,848 currently....
+print(f" length of untrustworthy trials: {len(all_ncts_1)}") #13,170 currently....
 
 # Label the feature table
 # - 1 = untrustworthy (case)
@@ -52,20 +52,11 @@ print(f"Number of trials labeled cases:{len(cases_df)}")
 
 cases_df.to_pickle("cases_df.pkl")
 
-# Extract trials without a label (NaN) to use as production/unlabeled set
-# note... is this too many? where are trials labeled 0? 
-df_production = df[df['label'].isna()].copy()
-
-df_production.to_pickle("production.pkl")
-
-print(df_production.shape)
-
 
 # Investigating where the 8 missing NCTs are...
 missing_ncts = all_ncts_1 - set(df['nct_id'])
 print(f"Missing NCTS: {missing_ncts}")
 print(len(missing_ncts))  
-
 
 missing_in_rwatch = missing_ncts.intersection(set(rwatch_nctids))
 print("Missing NCTs that are in rwatch_nctids:", missing_in_rwatch)

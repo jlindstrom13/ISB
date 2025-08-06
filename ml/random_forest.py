@@ -29,7 +29,7 @@ y = y[mask].astype(int)
 empty_cols = X.columns[X.isna().all()]
 print("Dropping empty columns from full dataset:", empty_cols.tolist())
 X = X.drop(columns=empty_cols)
-# X = X.drop(columns=['studies:is_ppsd'])
+X = X.drop(columns=['studies:fdaaa801_violation'])
 #splitting into train/test
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=36)
 
@@ -131,8 +131,8 @@ plt.close()
 
 production = pd.read_pickle("production.pkl")
 
-X_prod = production.drop(columns=["nct_id","studies:is_ppsd", "label"] + empty_cols.tolist())
-X_prod = X_prod.drop(columns=X_prod.columns[X_prod.isna().all()], errors='ignore')
+X_prod = production.drop(columns=["nct_id", "label"] + empty_cols.tolist(),  errors='ignore')
+X_prod = X_prod.drop(columns=['studies:fdaaa801_violation'], errors='ignore')
 
 # Prediction
 prod_preds = rf_pipeline.predict(X_prod)
@@ -144,7 +144,7 @@ production["prob_0"] = prod_pred_probs[:, 0]
 production["prob_1"] = prod_pred_probs[:, 1]
 
 # Export
-production.to_pickle("rf_production_predictions.pkl")
-production.to_csv("rf_production_predictions.csv", index=False)
+production.to_pickle("production_predictions/rf_production_predictions2.pkl")
+production.to_csv("production_predictions/rf_production_predictions2.csv", index=False)
 
 

@@ -34,7 +34,7 @@ for subset_id in ('100', '010', '001', '110', '101', '011', '111'):
     if patch:
         patch.set_alpha(0.7)
 
-plt.title("Overlap of Retracted Trials (NCT IDs)")
+plt.title("Overlap of Retracted Trials from Various Sources")
 plt.tight_layout()
 plt.savefig("venn_retractions")
 
